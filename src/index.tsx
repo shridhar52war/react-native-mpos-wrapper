@@ -9,14 +9,20 @@ const LINKING_ERROR =
 const MposWrapper = NativeModules.MposWrapper
   ? NativeModules.MposWrapper
   : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
+    {},
+    {
+      get() {
+        throw new Error(LINKING_ERROR);
+      },
+    }
+  );
 
 export function multiply(a: number, b: number): Promise<number> {
   return MposWrapper.multiply(a, b);
+}
+
+export function init(): Promise<number> {
+  return MposWrapper.init({
+    name: 'Shridhar',
+  });
 }
