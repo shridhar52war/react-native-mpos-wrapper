@@ -1,6 +1,5 @@
 package com.reactnativemposwrapper;
 
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.util.Log;
@@ -15,10 +14,9 @@ import com.facebook.react.bridge.ReadableMap;
 //import my.com.softspace.ssfasstapsdk.transaction.Transaction;
 //import my.com.softspace.ssfasstapsdk.transaction.TransactionalParams;
 
-public class FasstapSDKModule extends AppCompatActivity {
+public class FasstapSDKModule  {
 
   public void initFasstapSDK(ReadableMap initConfig){
-    Context context = getApplicationContext();
     Log.i("Init", initConfig.toString());
   }
 }
