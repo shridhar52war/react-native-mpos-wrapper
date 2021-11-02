@@ -10,12 +10,16 @@ npm install react-native-mpos-wrapper
 
 ## Usage
 
+API design is work in progress. Idea is to have something similar implemented.
+
 ```js
-import { multiply } from "react-native-mpos-wrapper";
+import { init } from 'react-native-mpos-wrapper';
 
-// ...
-
-const result = await multiply(3, 7);
+try {
+  const { status } = await init(sdkConfig);
+} catch (e) {
+  //handle initialisation and attestation error
+}
 ```
 
 ## Contributing
