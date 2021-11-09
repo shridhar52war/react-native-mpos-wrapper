@@ -42,6 +42,12 @@ const configObect = {
   developerId: '', //To set the developerID provided by Soft Space.
 };
 
-export function init(): Promise<number> {
+export function init(): Promise<void> {
   return MposWrapper.init(configObect);
+}
+
+export function initializeTransaction(
+  callback: (err?: Error, code?: number) => void //TODO: add config param to accept
+): Promise<void> {
+  return MposWrapper.initializeTransaction(callback);
 }
