@@ -46,8 +46,7 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void init(ReadableMap config, Promise promise){
-      promise.resolve("satified");
-      //fasstapSDKModule.initFasstapSDK(config, this.reactContext, promise);
+      fasstapSDKModule.initFasstapSDK(config, this.reactContext, promise);
     }
 
     @ReactMethod

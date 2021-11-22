@@ -28,6 +28,10 @@ public class FasstapSDKModule {
 
   public void initFasstapSDK(ReadableMap initConfig, Context context, Promise promise){
 
+
+      System.out.println("Inside initFasstapSDK--------");
+      System.out.println(initConfig.getString("attestationHost"));
+      System.out.println(initConfig.getString("attestationHostCertPinning"));
     // should it be wrapped within try catch?
     FasstapSDKConfiguration config = FasstapSDKConfiguration.Builder.create()
       .setAttestationHost(initConfig.getString("attestationHost"))
@@ -41,7 +45,9 @@ public class FasstapSDKModule {
       .setLibSecretKey(initConfig.getString("secretKey"))
       .build();
 
-    SSFasstapSDK.init(context, config, new SSFasstapSDK.EncryptionModel() {
+    promise.resolve("Success");
+
+    /*SSFasstapSDK.init(context, config, new SSFasstapSDK.EncryptionModel() {
       @Override
       public Object[] cipherOperation(boolean isEncrypt, byte[] data, boolean increaseKSN) {
         if (isEncrypt)
@@ -54,13 +60,13 @@ public class FasstapSDKModule {
     });
     FasstapSDKInfo fasstapSDKInfo = SSFasstapSDK.getInstance().getFasstapSDKInfo(context);
     Log.i("SDK Version: " , fasstapSDKInfo.getSdkVersion());
-    Log.i("COTS ID: " , fasstapSDKInfo.getCotsId());
+    Log.i("COTS ID: " , fasstapSDKInfo.getCotsId());*/
 
     // Please perform login your user before attestation
     //TODO: Check what is this for
     //SSFasstapSDK.getInstance().getAttestationPog().login(this, "user1");
 
-    if (!SSFasstapSDK.hasRequiredPermission(context)) {
+   /* if (!SSFasstapSDK.hasRequiredPermission(context)) {
       SSFasstapSDK.requestPermissionIfRequired((Activity) context, 1000);
     }
     else {
@@ -84,7 +90,7 @@ public class FasstapSDKModule {
           promise.resolve(status);
         }
       });
-    }
+    }*/
   }
 
   public void initializeTransaction(Context context, Callback callback){
