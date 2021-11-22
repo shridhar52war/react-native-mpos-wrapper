@@ -75,13 +75,13 @@ public class FasstapSDKModule {
         else
         {
           Log.i("Attestation FAILED", "" +status + "");
-          // Promise.reject()
+          promise.reject("FAILED", "something is wrong");
         }
 
         if (isSuccess)
         {
           Log.i("Attestation SUCCESS", "" +status + "");
-          // Promise.resolve()
+          promise.resolve(status);
         }
       });
     }
