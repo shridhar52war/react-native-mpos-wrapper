@@ -1,5 +1,6 @@
 package com.reactnativemposwrapper;
 
+import android.app.Application;
 import android.telecom.Call;
 
 import androidx.annotation.NonNull;
@@ -16,11 +17,15 @@ import com.facebook.react.module.annotations.ReactModule;
 @ReactModule(name = MposWrapperModule.NAME)
 public class MposWrapperModule extends ReactContextBaseJavaModule {
     public static final String NAME = "MposWrapper";
+    private final Application application;
     private ReactContext mReactContext;
     private FasstapSDKModule fasstapSDKModule;
+    private final ReactApplicationContext reactContext;
 
     public MposWrapperModule(ReactApplicationContext reactContext) {
       super(reactContext);
+      this.reactContext= reactContext;
+      this.application = (Application) reactContext.getApplicationContext();
       mReactContext = reactContext;
       fasstapSDKModule = new FasstapSDKModule();
     }
@@ -41,13 +46,14 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void init(ReadableMap config, Promise promise){
-      fasstapSDKModule.initFasstapSDK(config, mReactContext, promise);
+      promise.resolve("satified");
+      //fasstapSDKModule.initFasstapSDK(config, this.reactContext, promise);
     }
 
     @ReactMethod
     public void initializeTransaction(Callback callback){
         // Accept config as param to set amount and other transactional related data.
-      fasstapSDKModule.initializeTransaction(mReactContext, callback);
+      fasstapSDKModule.initializeTransaction(this.reactContext, callback);
     }
 
     public static native int nativeMultiply(int a, int b);
