@@ -33,19 +33,25 @@ public class FasstapSDKModule {
       System.out.println(initConfig.getString("attestationHost"));
       System.out.println(initConfig.getString("attestationHostCertPinning"));
     // should it be wrapped within try catch?
-    FasstapSDKConfiguration config = FasstapSDKConfiguration.Builder.create()
-      .setAttestationHost(initConfig.getString("attestationHost"))
-      .setAttestationHostCertPinning(initConfig.getString("attestationHostCertPinning"))
-      .setAttestationHostReadTimeout(10000L)
-      .setAttestationRefreshInterval(300000L)
-      .setAttestationStrictHttp(true)
-      .setAttestationConnectionTimeout(30000L)
-      .setLibGoogleApiKey(initConfig.getString("googleApiKey"))
-      .setLibAccessKey(initConfig.getString("accessKey"))
-      .setLibSecretKey(initConfig.getString("secretKey"))
-      .build();
+    try {
+      FasstapSDKConfiguration config = FasstapSDKConfiguration.Builder.create()
+        .setAttestationHost(initConfig.getString("attestationHost"))
+        .setAttestationHostCertPinning(initConfig.getString("attestationHostCertPinning"))
+        .setAttestationHostReadTimeout(10000L)
+        .setAttestationRefreshInterval(300000L)
+        .setAttestationStrictHttp(true)
+        .setAttestationConnectionTimeout(30000L)
+        .setLibGoogleApiKey(initConfig.getString("googleApiKey"))
+        .setLibAccessKey(initConfig.getString("accessKey"))
+        .setLibSecretKey(initConfig.getString("secretKey"))
+        .build();
+    }catch (Exception e){
+      System.out.println(e);
+      promise.reject("Config", "Error in Builder config")
+    }
 
-    promise.resolve("Success");
+
+    //promise.resolve("Success");
 
     /*SSFasstapSDK.init(context, config, new SSFasstapSDK.EncryptionModel() {
       @Override
