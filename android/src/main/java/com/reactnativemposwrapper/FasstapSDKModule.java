@@ -47,7 +47,7 @@ public class FasstapSDKModule {
         .build();
     }catch (Exception e){
       System.out.println(e);
-      promise.reject("Config", "Error in Builder config")
+      promise.reject("Config", "Error in Builder config");
     }
 
 
