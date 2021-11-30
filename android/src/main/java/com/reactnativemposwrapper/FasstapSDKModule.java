@@ -13,15 +13,15 @@ import com.facebook.react.bridge.ReadableMap;
 
 import java.util.Map;
 
-import my.com.softspace.ssfasstapsdk.FasstapSDKConfiguration;
+//import my.com.softspace.ssfasstapsdk.FasstapSDKConfiguration;
 import my.com.softspace.ssmpossdk.Environment;
 import my.com.softspace.ssmpossdk.SSMPOSSDKConfiguration;
-import my.com.softspace.ssfasstapsdk.FasstapSDKInfo;
-import my.com.softspace.ssfasstapsdk.SSFasstapSDK;
-import my.com.softspace.ssfasstapsdk.pog.AttestationPOG;
-import my.com.softspace.ssfasstapsdk.transaction.KernelConfigurationParams;
-import my.com.softspace.ssfasstapsdk.transaction.Transaction;
-import my.com.softspace.ssfasstapsdk.transaction.TransactionalParams;
+//import my.com.softspace.ssfasstapsdk.FasstapSDKInfo;
+//import my.com.softspace.ssfasstapsdk.SSFasstapSDK;
+//import my.com.softspace.ssfasstapsdk.pog.AttestationPOG;
+//import my.com.softspace.ssfasstapsdk.transaction.KernelConfigurationParams;
+//import my.com.softspace.ssfasstapsdk.transaction.Transaction;
+//import my.com.softspace.ssfasstapsdk.transaction.TransactionalParams;
 
 public class FasstapSDKModule {
 
@@ -103,58 +103,58 @@ public class FasstapSDKModule {
     }*/
   }
 
-  public void initializeTransaction(Context context, Callback callback){
-    // add kernel configurations params if required
-    try {
-      TransactionalParams transactionalParams = TransactionalParams.Builder.create().setAmount("2000").setDebitOptIn(true).setWaitForUserInputTimeout(15000).build();
-      SSFasstapSDK.getInstance().getTransaction().startTransaction((Activity) context, transactionalParams, new Transaction.TransactionEvents()
-      {
-        @Override
-        public void onCardEvent(int i)
-        {
-          Log.i("onCardEvent: " , "Code :"+ i);
-          // instead of i, we can pass the enum
-          callback.invoke(null, i);
-        }
-
-        @Override
-        public void onTransactionResult(int i, byte[] bytes)
-        {
-          // refer the documentation for the value <-> description
-          Log.i("onTransactionResult: ", "Code :"+i);
-          callback.invoke(null,i);
-        }
-
-        @Override
-        public void onTransactionUIEvent(int i)
-        {
-          Log.i("onTransactionUIEvent: " , "Code :"+i);
-          callback.invoke(null, i);
-        }
-
-
-        public byte[] onTransactionRequestOnlineAuthentication(byte[] bytes, Map<String, byte[]> map) {
-         // Log.i("onTransactionRequestOnlineAuthentication: " ,"");
-          Log.i("ksn: " , byteArrayToHexString(bytes, 0, bytes.length, false));
-
-          if (map != null)
-          {
-            for (Map.Entry<String, byte[]> entry : map.entrySet()) {
-              System.out.println(entry.getKey() + " : " + byteArrayToHexString(entry.getValue(), 0 , entry.getValue().length, false));
-            }
-          }
-
-          // simulate approved response from host.
-          return new byte[]{(byte)0x00, (byte)0x00, (byte)0x8A, (byte)0x00, (byte)0x02, (byte)0x30, (byte)0x30};
-        }
-
-      });
-    }catch (Exception e){
-      Log.e(TAG, e.getMessage(), e);
-      callback.invoke(e, null);
-    }
-
-  }
+//  public void initializeTransaction(Context context, Callback callback){
+//    // add kernel configurations params if required
+//    try {
+//      TransactionalParams transactionalParams = TransactionalParams.Builder.create().setAmount("2000").setDebitOptIn(true).setWaitForUserInputTimeout(15000).build();
+//      SSFasstapSDK.getInstance().getTransaction().startTransaction((Activity) context, transactionalParams, new Transaction.TransactionEvents()
+//      {
+//        @Override
+//        public void onCardEvent(int i)
+//        {
+//          Log.i("onCardEvent: " , "Code :"+ i);
+//          // instead of i, we can pass the enum
+//          callback.invoke(null, i);
+//        }
+//
+//        @Override
+//        public void onTransactionResult(int i, byte[] bytes)
+//        {
+//          // refer the documentation for the value <-> description
+//          Log.i("onTransactionResult: ", "Code :"+i);
+//          callback.invoke(null,i);
+//        }
+//
+//        @Override
+//        public void onTransactionUIEvent(int i)
+//        {
+//          Log.i("onTransactionUIEvent: " , "Code :"+i);
+//          callback.invoke(null, i);
+//        }
+//
+//
+//        public byte[] onTransactionRequestOnlineAuthentication(byte[] bytes, Map<String, byte[]> map) {
+//         // Log.i("onTransactionRequestOnlineAuthentication: " ,"");
+//          Log.i("ksn: " , byteArrayToHexString(bytes, 0, bytes.length, false));
+//
+//          if (map != null)
+//          {
+//            for (Map.Entry<String, byte[]> entry : map.entrySet()) {
+//              System.out.println(entry.getKey() + " : " + byteArrayToHexString(entry.getValue(), 0 , entry.getValue().length, false));
+//            }
+//          }
+//
+//          // simulate approved response from host.
+//          return new byte[]{(byte)0x00, (byte)0x00, (byte)0x8A, (byte)0x00, (byte)0x02, (byte)0x30, (byte)0x30};
+//        }
+//
+//      });
+//    }catch (Exception e){
+//      Log.e(TAG, e.getMessage(), e);
+//      callback.invoke(e, null);
+//    }
+//
+//  }
 
   public static String byteArrayToHexString(byte[] scr, int off, int len, boolean noSpace) {
     StringBuffer buf = new StringBuffer();
