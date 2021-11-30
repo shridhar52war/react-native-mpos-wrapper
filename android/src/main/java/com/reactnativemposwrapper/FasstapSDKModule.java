@@ -103,8 +103,9 @@ public class FasstapSDKModule {
     }*/
   }
 
-//  public void initializeTransaction(Context context, Callback callback){
-//    // add kernel configurations params if required
+  public void initializeTransaction(Context context, Callback callback){
+    callback.invoke("Success");
+    // add kernel configurations params if required
 //    try {
 //      TransactionalParams transactionalParams = TransactionalParams.Builder.create().setAmount("2000").setDebitOptIn(true).setWaitForUserInputTimeout(15000).build();
 //      SSFasstapSDK.getInstance().getTransaction().startTransaction((Activity) context, transactionalParams, new Transaction.TransactionEvents()
@@ -153,8 +154,8 @@ public class FasstapSDKModule {
 //      Log.e(TAG, e.getMessage(), e);
 //      callback.invoke(e, null);
 //    }
-//
-//  }
+
+  }
 
   public static String byteArrayToHexString(byte[] scr, int off, int len, boolean noSpace) {
     StringBuffer buf = new StringBuffer();
