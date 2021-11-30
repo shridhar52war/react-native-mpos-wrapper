@@ -14,6 +14,8 @@ import com.facebook.react.bridge.ReadableMap;
 import java.util.Map;
 
 import my.com.softspace.ssfasstapsdk.FasstapSDKConfiguration;
+import my.com.softspace.ssmpossdk.Environment;
+import my.com.softspace.ssmpossdk.SSMPOSSDKConfiguration;
 import my.com.softspace.ssfasstapsdk.FasstapSDKInfo;
 import my.com.softspace.ssfasstapsdk.SSFasstapSDK;
 import my.com.softspace.ssfasstapsdk.pog.AttestationPOG;
@@ -34,7 +36,7 @@ public class FasstapSDKModule {
       System.out.println(initConfig.getString("attestationHostCertPinning"));
     // should it be wrapped within try catch?
     try {
-      FasstapSDKConfiguration config = FasstapSDKConfiguration.Builder.create()
+      SSMPOSSDKConfiguration config = SSMPOSSDKConfiguration.Builder.create()
         .setAttestationHost(initConfig.getString("attestationHost"))
         .setAttestationHostCertPinning(initConfig.getString("attestationHostCertPinning"))
         .setAttestationHostReadTimeout(10000L)
@@ -44,7 +46,9 @@ public class FasstapSDKModule {
         .setLibGoogleApiKey(initConfig.getString("googleApiKey"))
         .setLibAccessKey(initConfig.getString("accessKey"))
         .setLibSecretKey(initConfig.getString("secretKey"))
+        .setEnvironment(Environment.UAT)
         .build();
+
     }catch (Exception e){
       System.out.println(e);
       promise.reject("Config", "Error in Builder config");

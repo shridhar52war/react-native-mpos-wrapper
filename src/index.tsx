@@ -38,8 +38,8 @@ const configObect = {
 
   accessKey: 'KxNXmOxZmjoP3BHqp+XdQEp6BrRDOKZMCdJL85H9fsEeAg==', //To set the Access Key. This field is mandatory. Soft Space will provide the Access Key.
   secretKey: 'uPVB+RzDDs6R3V+6y+sDglrsK3sWn7lOqC97YsYJr/M=', //To set the Secret Key. This field is mandatory. Soft Space will provide the Secret Key.
-  uniqueId: '', // To set the uniqueID provided by Soft Space.
-  developerId: '', //To set the developerID provided by Soft Space.
+  uniqueId: '9nD9hrW8EMWB375', // To set the uniqueID provided by Soft Space.
+  developerId: 'rzp01', //To set the developerID provided by Soft Space.
 };
 
 export function init(): Promise<void> {
