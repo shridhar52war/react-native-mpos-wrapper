@@ -19,10 +19,10 @@ def safeExtGet(prop, fallback) {
 }
 
 android {
-    compileSdkVersion safeExtGet('MposWrapper_compileSdkVersion', 30)
+    compileSdkVersion safeExtGet('MposWrapper_compileSdkVersion', 29)
     defaultConfig {
         minSdkVersion safeExtGet('MposWrapper_minSdkVersion', 26)
-        targetSdkVersion safeExtGet('MposWrapper_targetSdkVersion', 30)
+        targetSdkVersion safeExtGet('MposWrapper_targetSdkVersion', 29)
         versionCode 1
         versionName "1.0"
 
