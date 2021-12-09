@@ -26,6 +26,7 @@ public class FasstapSDKModule {
   private final static String TAG = "FasstapSDKModule";
 
 
+
   public void initFasstapSDK(ReadableMap initConfig, Context context, Promise promise){
       System.out.println("Inside initFasstapSDK--------");
       System.out.println(initConfig.getString("attestationHost"));
