@@ -53,7 +53,7 @@ public class FasstapSDKModule {
 //      }
       //promise.resolve("Successfully Initiated");
     }catch (Exception e){
-      System.out.println(e);
+      //System.out.println(e);
       promise.reject(e);
     }
   }
