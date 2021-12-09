@@ -48,10 +48,10 @@ public class FasstapSDKModule {
       System.out.println("SDK Version: " + SSMPOSSDK.getInstance().getSdkVersion());
       System.out.println("COTS ID: " + SSMPOSSDK.getInstance().getCotsId());
 
-      if(!SSMPOSSDK.hasRequiredPermission(context)){
-          SSMPOSSDK.requestPermissionIfRequired((Activity) context, 1000);
-      }
-      promise.resolve("Successfully Initiated");
+//      if(!SSMPOSSDK.hasRequiredPermission(context)){
+//          SSMPOSSDK.requestPermissionIfRequired((Activity) context, 1000);
+//      }
+      //promise.resolve("Successfully Initiated");
     }catch (Exception e){
       System.out.println(e);
       promise.reject("Error in Builder config");
