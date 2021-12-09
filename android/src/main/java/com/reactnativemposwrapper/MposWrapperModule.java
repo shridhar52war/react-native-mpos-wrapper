@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.telecom.Call;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import androidx.annotation.NonNull;
 
@@ -93,6 +95,8 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
         promise.resolve("Successfully Initiated");
 
       }catch (Exception e){
+        Logger logger = Logger.getAnonymousLogger();
+        logger.log(Level.SEVERE, "Catch Error", e);
         promise.reject(e);
       }
     }
