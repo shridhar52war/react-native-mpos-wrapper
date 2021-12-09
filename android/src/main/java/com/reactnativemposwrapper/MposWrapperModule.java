@@ -1,8 +1,11 @@
 package com.reactnativemposwrapper;
 
+import static my.com.softspace.ssmpossdk.transaction.MPOSTransaction.TransactionEvents.TransactionResult.TransactionSuccessful;
+
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.os.Looper;
 import android.telecom.Call;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -29,23 +32,17 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
 
     private FasstapSDKModule fasstapSDKModule;
     private ReactApplicationContext reactContext;
+    private Context _context;
     private Activity _activity;
 
     public MposWrapperModule(ReactApplicationContext reactContext) {
       super(reactContext);
       if (SSMPOSSDK.isRunningOnRemoteProcess(reactContext))
       {
+        System.out.println("isRunningOnRemoteProcess....");
         return;
       }
       this.reactContext= reactContext;
-      this.application = (Application) reactContext.getApplicationContext();
-      this._activity = reactContext.getCurrentActivity();
-      //fasstapSDKModule = new FasstapSDKModule();
-      setup(application);
-    }
-
-    private void setup(final Application application) {
-      this.application = application;
     }
 
     @Override
@@ -62,15 +59,15 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
         promise.resolve(a * b);
     }
 
+
     @ReactMethod
     public void init(ReadableMap initConfig, Promise promise){
-
+      this._activity = getCurrentActivity();
       System.out.println("Inside initFasstapSDK--------");
       System.out.println(initConfig.getString("attestationHost"));
       System.out.println(initConfig.getString("attestationHostCertPinning"));
 
       try{
-
         SSMPOSSDKConfiguration config = SSMPOSSDKConfiguration.Builder.create()
           .setAttestationHost(initConfig.getString("attestationHost"))
           .setAttestationHostCertPinning(initConfig.getString("attestationHostCertPinning"))
@@ -84,16 +81,30 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
           .setEnvironment(Environment.UAT)
           .build();
 
+        ReactApplicationContext dd = this.reactContext;
+        Activity aa = this._activity;
 
-        SSMPOSSDK.init(this.application, config);
+        SSMPOSSDK.init(this.reactContext, config);
         System.out.println("SDK Version: " + SSMPOSSDK.getInstance().getSdkVersion());
         System.out.println("COTS ID: " + SSMPOSSDK.getInstance().getCotsId());
 
-        if(!SSMPOSSDK.hasRequiredPermission(this.application)){
-          SSMPOSSDK.requestPermissionIfRequired(this._activity, 1000);
+        if(!SSMPOSSDK.hasRequiredPermission(dd)){
+          SSMPOSSDK.requestPermissionIfRequired( this._activity, 1000);
         }
         promise.resolve("Successfully Initiated");
-
+//        this._activity.runOnUiThread(new Runnable() {
+//          @Override
+//          public void run() {
+//            SSMPOSSDK.init(dd, config);
+//            System.out.println("SDK Version: " + SSMPOSSDK.getInstance().getSdkVersion());
+//            System.out.println("COTS ID: " + SSMPOSSDK.getInstance().getCotsId());
+//
+//            if(!SSMPOSSDK.hasRequiredPermission(dd)){
+//              SSMPOSSDK.requestPermissionIfRequired( aa, 1000);
+//            }
+//            promise.resolve("Successfully Initiated");
+//          }
+//        });
       }catch (Exception e){
         Logger logger = Logger.getAnonymousLogger();
         logger.log(Level.SEVERE, "Catch Error", e);
