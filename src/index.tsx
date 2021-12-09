@@ -36,10 +36,10 @@ const configObect = {
   l#obtain-api-key*/
   googleApiKey: 'AIzaSyD9l4ImfUXhDAMz4Df5rdt7gItDy91fXTE',
 
-  accessKey: 'KxNXmOxZmjoP3BHqp+XdQEp6BrRDOKZMCdJL85H9fsEeAg==', //To set the Access Key. This field is mandatory. Soft Space will provide the Access Key.
-  secretKey: 'uPVB+RzDDs6R3V+6y+sDglrsK3sWn7lOqC97YsYJr/M=', //To set the Secret Key. This field is mandatory. Soft Space will provide the Secret Key.
-  uniqueId: '9nD9hrW8EMWB375', // To set the uniqueID provided by Soft Space.
-  developerId: 'rzp01', //To set the developerID provided by Soft Space.
+  accessKey: 'kT/BjPDNDr0npGasHek0XIt2rVqfkCMx+n6ZHhoWJlYeAg==', //To set the Access Key. This field is mandatory. Soft Space will provide the Access Key.
+  secretKey: 'EPnYtWJwEZ2bphgBrKrJA0LDRS9ZcASsuwy7CQTJmOU=', //To set the Secret Key. This field is mandatory. Soft Space will provide the Secret Key.
+  uniqueId: 'rzp01', // To set the uniqueID provided by Soft Space.
+  developerId: '9nD9hrW8EMWB375', //To set the developerID provided by Soft Space.
 };
 
 export function init(): Promise<void> {
