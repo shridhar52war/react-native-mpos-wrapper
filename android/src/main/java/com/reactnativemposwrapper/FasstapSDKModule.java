@@ -31,7 +31,9 @@ public class FasstapSDKModule {
       System.out.println(initConfig.getString("attestationHost"));
       System.out.println(initConfig.getString("attestationHostCertPinning"));
     // should it be wrapped within try catch?
+
     try {
+      Context ss = context.getApplicationContext();
       SSMPOSSDKConfiguration config = SSMPOSSDKConfiguration.Builder.create()
         .setAttestationHost(initConfig.getString("attestationHost"))
         .setAttestationHostCertPinning(initConfig.getString("attestationHostCertPinning"))
@@ -44,7 +46,7 @@ public class FasstapSDKModule {
         .setLibSecretKey(initConfig.getString("secretKey"))
         .setEnvironment(Environment.UAT)
         .build();
-      SSMPOSSDK.init(context, config);
+      SSMPOSSDK.init(ss, config);
       System.out.println("SDK Version: " + SSMPOSSDK.getInstance().getSdkVersion());
       System.out.println("COTS ID: " + SSMPOSSDK.getInstance().getCotsId());
 
