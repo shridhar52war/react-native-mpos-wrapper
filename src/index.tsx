@@ -34,7 +34,7 @@ const configObect = {
   Verification API. For more information, please visit this link:
   https://developer.android.com/training/safetynet/attestation.htm
   l#obtain-api-key*/
-  googleApiKey: 'AIzaSyD9l4ImfUXhDAMz4Df5rdt7gItDy91fXTE',
+  googleApiKey: 'AIzaSyBEwbWEnuL12mp0C1zjj-W2tHm770uK82Q',
 
   accessKey: 'kT/BjPDNDr0npGasHek0XIt2rVqfkCMx+n6ZHhoWJlYeAg==', //To set the Access Key. This field is mandatory. Soft Space will provide the Access Key.
   secretKey: 'EPnYtWJwEZ2bphgBrKrJA0LDRS9ZcASsuwy7CQTJmOU=', //To set the Secret Key. This field is mandatory. Soft Space will provide the Secret Key.
