@@ -32,6 +32,7 @@ import my.com.softspace.ssmpossdk.SSMPOSSDKConfiguration;
 public class MposWrapperModule extends ReactContextBaseJavaModule {
   public static final String NAME = "MposWrapper";
   private Application application;
+
   private FasstapSDKModule fasstapSDKModule;
   private ReactApplicationContext reactContext;
   private Context _context;
@@ -52,27 +53,19 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
     return NAME;
   }
 
-
-  // Example method
-  // See https://reactnative.dev/docs/native-modules-android
-  @ReactMethod
-  public void multiply(int a, int b, Promise promise) {
-    promise.resolve(a * b);
-  }
-
-
   @ReactMethod
   public void init(ReadableMap initConfig, Promise promise) {
     this._activity = getCurrentActivity();
     System.out.println("Inside initFasstapSDK--------");
-    System.out.println(initConfig.getString("attestationHost"));
-    System.out.println(initConfig.getString("attestationHostCertPinning"));
-    System.out.println(initConfig.getString("googleApiKey"));
-    System.out.println(initConfig.getString("accessKey"));
-    System.out.println(initConfig.getString("secretKey"));
-    System.out.println(initConfig.getString("uniqueId"));
-    System.out.println(initConfig.getString("developerId"));
-    System.out.println(Environment.UAT);
+    System.out.println("attestationHost : " + initConfig.getString("attestationHost"));
+    System.out.println("attestationHostCertPinning : " + initConfig.getString("attestationHostCertPinning"));
+    System.out.println("googleApiKey : " + initConfig.getString("googleApiKey"));
+    System.out.println("accessKey : " + initConfig.getString("accessKey"));
+    System.out.println("secretKey : " + initConfig.getString("secretKey"));
+    System.out.println("uniqueId : " + initConfig.getString("uniqueId"));
+    System.out.println("developerId : " + initConfig.getString("developerId"));
+    System.out.println("Environment : " + Environment.UAT);
+
 
     try {
       SSMPOSSDKConfiguration config = SSMPOSSDKConfiguration.Builder.create()
@@ -90,19 +83,20 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
         .setEnvironment(Environment.UAT)
         .build();
 
-      ReactApplicationContext dd = this.reactContext;
-      Activity aa = this._activity;
+      ReactApplicationContext currentReactContext = this.reactContext;
+      Activity currentActivity = this._activity;
 
       UiThreadUtil.runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          SSMPOSSDK.init(dd, config);
+          SSMPOSSDK.init(currentReactContext, config);
           System.out.println("SDK Version: " + SSMPOSSDK.getInstance().getSdkVersion());
           System.out.println("COTS ID: " + SSMPOSSDK.getInstance().getCotsId());
 
-          if (!SSMPOSSDK.hasRequiredPermission(dd)) {
-            SSMPOSSDK.requestPermissionIfRequired(aa, 1000);
+          if (!SSMPOSSDK.hasRequiredPermission(currentReactContext)) {
+            SSMPOSSDK.requestPermissionIfRequired(currentActivity, 1000);
           }
+          promise.resolve("Successfully Initialised the SDK");
         }
       });
 
@@ -113,11 +107,9 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
     }
   }
 
-  @ReactMethod
-  public void initializeTransaction(Callback callback) {
-    // Accept config as param to set amount and other transactional related data.
-    fasstapSDKModule.initializeTransaction(this.reactContext, callback);
-  }
-
-  public static native int nativeMultiply(int a, int b);
+//    @ReactMethod
+//    public void initializeTransaction(Callback callback){
+//        // Accept config as param to set amount and other transactional related data.
+//      fasstapSDKModule.initializeTransaction(this.reactContext, callback);
+//    }
 }
