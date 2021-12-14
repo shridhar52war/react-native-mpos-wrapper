@@ -56,7 +56,7 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-   // debugImplementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'], excludes: ['ssmobile-pog-engine-release.aar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'], excludes: ['ssmobile-pog-engine-release.aar'])
     //releaseImplementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'], excludes: ['ssmobile-pog-engine-debug.aar'])
     implementation "com.facebook.react:react-native:+"  // From node_modules
 

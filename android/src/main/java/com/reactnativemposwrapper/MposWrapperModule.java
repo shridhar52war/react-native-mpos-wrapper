@@ -27,6 +27,9 @@ import com.facebook.react.bridge.UiThreadUtil;
 import my.com.softspace.ssmpossdk.Environment;
 import my.com.softspace.ssmpossdk.SSMPOSSDK;
 import my.com.softspace.ssmpossdk.SSMPOSSDKConfiguration;
+import my.com.softspace.ssmpossdk.transaction.MPOSTransaction;
+import my.com.softspace.ssmpossdk.transaction.MPOSTransactionOutcome;
+import my.com.softspace.ssmpossdk.transaction.MPOSTransactionParams;
 
 @ReactModule(name = MposWrapperModule.NAME)
 public class MposWrapperModule extends ReactContextBaseJavaModule {
@@ -57,14 +60,14 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
   public void init(ReadableMap initConfig, Promise promise) {
     this._activity = getCurrentActivity();
     System.out.println("Inside initFasstapSDK--------");
-    System.out.println("attestationHost : " + initConfig.getString("attestationHost"));
-    System.out.println("attestationHostCertPinning : " + initConfig.getString("attestationHostCertPinning"));
-    System.out.println("googleApiKey : " + initConfig.getString("googleApiKey"));
-    System.out.println("accessKey : " + initConfig.getString("accessKey"));
-    System.out.println("secretKey : " + initConfig.getString("secretKey"));
-    System.out.println("uniqueId : " + initConfig.getString("uniqueId"));
-    System.out.println("developerId : " + initConfig.getString("developerId"));
-    System.out.println("Environment : " + Environment.UAT);
+//    System.out.println("attestationHost : " + initConfig.getString("attestationHost"));
+//    System.out.println("attestationHostCertPinning : " + initConfig.getString("attestationHostCertPinning"));
+//    System.out.println("googleApiKey : " + initConfig.getString("googleApiKey"));
+//    System.out.println("accessKey : " + initConfig.getString("accessKey"));
+//    System.out.println("secretKey : " + initConfig.getString("secretKey"));
+//    System.out.println("uniqueId : " + initConfig.getString("uniqueId"));
+//    System.out.println("developerId : " + initConfig.getString("developerId"));
+//    System.out.println("Environment : " + Environment.UAT);
 
 
     try {
@@ -107,9 +110,88 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
     }
   }
 
-//    @ReactMethod
-//    public void initializeTransaction(Callback callback){
-//        // Accept config as param to set amount and other transactional related data.
-//      fasstapSDKModule.initializeTransaction(this.reactContext, callback);
-//    }
+  private void uploadSignature() {
+    //writeLog("uploadSignature()");
+    System.out.println("uploadSignature method......");
+    String base64SignatureString = "shri_=="; // your signature image base64 string
+
+    try {
+      MPOSTransactionParams transactionalParams = MPOSTransactionParams.Builder.create()
+        .setSignature(base64SignatureString)
+        .build();
+
+      SSMPOSSDK.getInstance().getTransaction().uploadSignature(transactionalParams);
+
+    } catch (Exception e) {
+      Logger logger = Logger.getAnonymousLogger();
+      logger.log(Level.SEVERE, "Catch Error uploadSignature", e);
+    }
+  }
+
+  private void refreshToken() {
+    Activity _currentActivity = getCurrentActivity();
+    System.out.println("Inside refreshToken method......" + _currentActivity);
+    SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().uniqueID = "rzp01";
+    SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().developerID = "9nD9hrW8EMWB375";
+    SSMPOSSDK.getInstance().getTransaction().refreshToken(_currentActivity, new MPOSTransaction.TransactionEvents() {
+      @Override
+      public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
+        System.out.println("onTransactionResult in refreshToken:: " + result);
+
+        if (result == TransactionSuccessful) {
+          System.out.println("refreshToken TransactionSuccessful" + result);
+        } else {
+          if (transactionOutcome != null) {
+            System.out.println(transactionOutcome.getStatusCode() + " - " + transactionOutcome.getStatusMessage());
+          }
+        }
+      }
+
+      @Override
+      public void onTransactionUIEvent(int event) {
+        System.out.println("onTransactionUIEvent refreshToken :: " + event);
+      }
+    });
+  }
+
+
+  @ReactMethod
+  public void initializeTransaction(Callback callback) {
+    // Accept config as param to set amount and other transactional related data.
+    //fasstapSDKModule.initializeTransaction(this.reactContext, callback);
+    Activity _activityContext = getCurrentActivity();
+    try {
+      MPOSTransactionParams transactionalParams = MPOSTransactionParams.Builder.create()
+        .setAmount("100")
+        .build();
+      System.out.println("Initialising transaction........");
+      refreshToken();
+      uploadSignature();
+      SSMPOSSDK.getInstance().getTransaction().startTransaction(_activityContext, transactionalParams, new MPOSTransaction.TransactionEvents() {
+        @Override
+        public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
+          System.out.println(" onTransactionResult result : " + result);
+          if (result == TransactionSuccessful) {
+            String outcome = "Transaction ID :: " + transactionOutcome.getTransactionID() + "\n";
+            outcome += "Approval code :: " + transactionOutcome.getApprovalCode() + "\n";
+            outcome += "Card number :: " + transactionOutcome.getCardNo() + "\n";
+            outcome += "Cardholder name :: " + transactionOutcome.getCardHolderName();
+            System.out.println(outcome);
+
+            callback.invoke("transactionOutcome.getTransactionID()" + transactionOutcome.getTransactionID());
+          }
+        }
+
+        @Override
+        public void onTransactionUIEvent(int event) {
+          System.out.println("onTransactionUIEvent" + event);
+          callback.invoke("onTransactionUIEvent" + event);
+        }
+      });
+    } catch (Exception e) {
+      Logger logger = Logger.getAnonymousLogger();
+      logger.log(Level.SEVERE, "Catch Error Transaction", e);
+      callback.invoke("Error in transaction");
+    }
+  }
 }
