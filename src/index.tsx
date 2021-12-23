@@ -1,4 +1,4 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules, Platform, NativeEventEmitter } from 'react-native';
 
 const LINKING_ERROR =
   `The package 'react-native-mpos-wrapper' doesn't seem to be linked. Make sure: \n\n` +
@@ -16,6 +16,10 @@ const MposWrapper = NativeModules.MposWrapper
       },
     }
   );
+
+const MposWrapperEmitter = NativeModules.MposWrapper
+  ? new NativeEventEmitter(NativeModules.MposWrapper)
+  : null;
 
 export function multiply(a: number, b: number): Promise<number> {
   return MposWrapper.multiply(a, b);
@@ -57,3 +61,5 @@ export function initializeTransaction(
 ): Promise<void> {
   return MposWrapper.initializeTransaction(callback);
 }
+
+export { MposWrapperEmitter };
