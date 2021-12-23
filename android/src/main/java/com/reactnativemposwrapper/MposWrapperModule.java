@@ -14,6 +14,7 @@ import java.util.logging.Level;
 
 import androidx.annotation.NonNull;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -21,6 +22,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.bridge.UiThreadUtil;
 
@@ -31,6 +33,8 @@ import my.com.softspace.ssmpossdk.transaction.MPOSTransaction;
 import my.com.softspace.ssmpossdk.transaction.MPOSTransactionOutcome;
 import my.com.softspace.ssmpossdk.transaction.MPOSTransactionParams;
 
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+
 @ReactModule(name = MposWrapperModule.NAME)
 public class MposWrapperModule extends ReactContextBaseJavaModule {
   public static final String NAME = "MposWrapper";
@@ -40,6 +44,8 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
   private ReactApplicationContext reactContext;
   private Context _context;
   private Activity _activity;
+  private Callback jsCallback;
+  private DeviceEventManagerModule.RCTDeviceEventEmitter eventEmitter = null;
 
   public MposWrapperModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -100,6 +106,18 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
     }
   }
 
+  public void sendEvent(String eventName, Integer eventCode) {
+    WritableMap params = Arguments.createMap();
+    params.putInt("eventCode", eventCode);
+    if (eventEmitter == null) {
+      eventEmitter = getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+    }
+    if (eventEmitter != null) {
+      System.out.println("Emitting event" + "Event Code :" + eventName + "Event Code :" + eventCode);
+      eventEmitter.emit(eventName, params);
+    }
+  }
+
   private void uploadSignature() {
     //writeLog("uploadSignature()");
     System.out.println("uploadSignature method......");
@@ -121,6 +139,7 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void refreshToken(Callback callback) {
     Activity _currentActivity = getCurrentActivity();
+    jsCallback = callback;
     System.out.println("Inside refreshToken method......");
     //SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().uniqueID = "rzp01";
     //SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().developerID = "9nD9hrW8EMWB375";
@@ -132,10 +151,11 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
 
         if (result == TransactionSuccessful) {
           System.out.println("refreshToken TransactionSuccessful" + result);
-          callback.invoke(null, result);
+          // jsCallback.invoke(null, result);
+          sendEvent("refreshToken", result);
         } else {
           if (transactionOutcome != null) {
-            System.out.println("refreshToken :"+transactionOutcome.getStatusCode() + " - " + transactionOutcome.getStatusMessage());
+            System.out.println("refreshToken :" + transactionOutcome.getStatusCode() + " - " + transactionOutcome.getStatusMessage());
           }
         }
       }
@@ -143,6 +163,7 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
       @Override
       public void onTransactionUIEvent(int event) {
         System.out.println("onTransactionUIEvent refreshToken :: " + event);
+        sendEvent("refreshToken", event);
       }
     });
   }
@@ -152,6 +173,7 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
   public void initializeTransaction(Callback callback) {
     // Accept config as param to set amount and other transactional related data.
     //fasstapSDKModule.initializeTransaction(this.reactContext, callback);
+    jsCallback = callback;
     Activity _activityContext = getCurrentActivity();
     try {
       MPOSTransactionParams transactionalParams = MPOSTransactionParams.Builder.create()
@@ -164,27 +186,30 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
         public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
           System.out.println(" onTransactionResult result : " + result);
           if (result == TransactionSuccessful) {
-            if(transactionOutcome != null){
+            if (transactionOutcome != null) {
               String outcome = "Transaction ID :: " + transactionOutcome.getTransactionID() + "\n";
-            outcome += "Approval code :: " + transactionOutcome.getApprovalCode() + "\n";
-            outcome += "Card number :: " + transactionOutcome.getCardNo() + "\n";
-            outcome += "Cardholder name :: " + transactionOutcome.getCardHolderName();
-            System.out.println(outcome);
+              outcome += "Approval code :: " + transactionOutcome.getApprovalCode() + "\n";
+              outcome += "Card number :: " + transactionOutcome.getCardNo() + "\n";
+              outcome += "Cardholder name :: " + transactionOutcome.getCardHolderName();
+              System.out.println(outcome);
             }
-            callback.invoke("transactionOutcome.getTransactionID()");
+            //jsCallback.invoke("transactionOutcome.getTransactionID()");
+            sendEvent("transactionResult", result);
           }
         }
 
         @Override
         public void onTransactionUIEvent(int event) {
           System.out.println("onTransactionUIEvent" + event);
-          callback.invoke("onTransactionUIEvent" + event);
+          // jsCallback.invoke("onTransactionUIEvent" + event);
+          sendEvent("transactionUIEvent", event);
         }
       });
     } catch (Exception e) {
       Logger logger = Logger.getAnonymousLogger();
       logger.log(Level.SEVERE, "Catch Error Transaction", e);
-      callback.invoke("Error in transaction");
+      //jsCallback.invoke("Error in transaction");
+      sendEvent("error", 000);
     }
   }
 }
