@@ -60,16 +60,6 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
   public void init(ReadableMap initConfig, Promise promise) {
     this._activity = getCurrentActivity();
     System.out.println("Inside initFasstapSDK--------");
-//    System.out.println("attestationHost : " + initConfig.getString("attestationHost"));
-//    System.out.println("attestationHostCertPinning : " + initConfig.getString("attestationHostCertPinning"));
-//    System.out.println("googleApiKey : " + initConfig.getString("googleApiKey"));
-//    System.out.println("accessKey : " + initConfig.getString("accessKey"));
-//    System.out.println("secretKey : " + initConfig.getString("secretKey"));
-//    System.out.println("uniqueId : " + initConfig.getString("uniqueId"));
-//    System.out.println("developerId : " + initConfig.getString("developerId"));
-//    System.out.println("Environment : " + Environment.UAT);
-
-
     try {
       SSMPOSSDKConfiguration config = SSMPOSSDKConfiguration.Builder.create()
         .setAttestationHost(initConfig.getString("attestationHost"))
@@ -128,11 +118,13 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
     }
   }
 
-  private void refreshToken() {
+  @ReactMethod
+  public void refreshToken(Callback callback) {
     Activity _currentActivity = getCurrentActivity();
-    System.out.println("Inside refreshToken method......" + _currentActivity);
-    SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().uniqueID = "rzp01";
-    SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().developerID = "9nD9hrW8EMWB375";
+    System.out.println("Inside refreshToken method......");
+    //SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().uniqueID = "rzp01";
+    //SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().developerID = "9nD9hrW8EMWB375";
+    // System.out.println("XXXXXXXXXXXXXXX" + SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().uniqueID + SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().developerID);
     SSMPOSSDK.getInstance().getTransaction().refreshToken(_currentActivity, new MPOSTransaction.TransactionEvents() {
       @Override
       public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
@@ -140,9 +132,10 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
 
         if (result == TransactionSuccessful) {
           System.out.println("refreshToken TransactionSuccessful" + result);
+          callback.invoke(null, result);
         } else {
           if (transactionOutcome != null) {
-            System.out.println(transactionOutcome.getStatusCode() + " - " + transactionOutcome.getStatusMessage());
+            System.out.println("refreshToken :"+transactionOutcome.getStatusCode() + " - " + transactionOutcome.getStatusMessage());
           }
         }
       }
@@ -165,20 +158,20 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
         .setAmount("100")
         .build();
       System.out.println("Initialising transaction........");
-      refreshToken();
-      uploadSignature();
+      // uploadSignature();
       SSMPOSSDK.getInstance().getTransaction().startTransaction(_activityContext, transactionalParams, new MPOSTransaction.TransactionEvents() {
         @Override
         public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
           System.out.println(" onTransactionResult result : " + result);
           if (result == TransactionSuccessful) {
-            String outcome = "Transaction ID :: " + transactionOutcome.getTransactionID() + "\n";
+            if(transactionOutcome != null){
+              String outcome = "Transaction ID :: " + transactionOutcome.getTransactionID() + "\n";
             outcome += "Approval code :: " + transactionOutcome.getApprovalCode() + "\n";
             outcome += "Card number :: " + transactionOutcome.getCardNo() + "\n";
             outcome += "Cardholder name :: " + transactionOutcome.getCardHolderName();
             System.out.println(outcome);
-
-            callback.invoke("transactionOutcome.getTransactionID()" + transactionOutcome.getTransactionID());
+            }
+            callback.invoke("transactionOutcome.getTransactionID()");
           }
         }
 
