@@ -1,6 +1,18 @@
 package com.reactnativemposwrapper;
 
-import static my.com.softspace.ssmpossdk.transaction.MPOSTransaction.TransactionEvents.TransactionResult.TransactionSuccessful;
+import static my.com.softspace.ssmpossdk.transaction.MPOSTransaction.TransactionEvents.TransactionResult;
+
+
+//int TransactionDeclined = 7004;
+//  int TransactionFailed = 7005;
+//  int TransactionNoAppError = 7006;
+//  int TransactionFailedAllowFallback = 7007;
+//  int TransactionCardExpired = 7008;
+//  int TransactionOnlineFail = 7020;
+//  int TransactionCancel = 7024;
+//  int TransactionTimeout = 7028;
+//  int TransactionCardError = 7030;
+//  int TransactionRequireCDCVM = 7054;
 
 import android.app.Activity;
 import android.app.Application;
@@ -38,6 +50,10 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 @ReactModule(name = MposWrapperModule.NAME)
 public class MposWrapperModule extends ReactContextBaseJavaModule {
   public static final String NAME = "MposWrapper";
+  public static final String TRANSACTION_UI_EVENT_NAME = "TransactionUIEvent";
+  public  static final String TRANSACTION_RESULT_EVENT_NAME = "TransactionResult";
+  public static final String REFRESH_TOKEN_EVENT_NAME = "RefreshToken";
+  public static final String ERROR = "Error";
   private Application application;
 
   private FasstapSDKModule fasstapSDKModule;
@@ -149,10 +165,9 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
       public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
         System.out.println("onTransactionResult in refreshToken:: " + result);
 
-        if (result == TransactionSuccessful) {
+        if (result == TransactionResult.TransactionSuccessful) {
           System.out.println("refreshToken TransactionSuccessful" + result);
-          // jsCallback.invoke(null, result);
-          sendEvent("refreshToken", result);
+          sendEvent(REFRESH_TOKEN_EVENT_NAME, result);
         } else {
           if (transactionOutcome != null) {
             System.out.println("refreshToken :" + transactionOutcome.getStatusCode() + " - " + transactionOutcome.getStatusMessage());
@@ -163,7 +178,7 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
       @Override
       public void onTransactionUIEvent(int event) {
         System.out.println("onTransactionUIEvent refreshToken :: " + event);
-        sendEvent("refreshToken", event);
+        sendEvent(REFRESH_TOKEN_EVENT_NAME, event);
       }
     });
   }
@@ -185,7 +200,7 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
         @Override
         public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
           System.out.println(" onTransactionResult result : " + result);
-          if (result == TransactionSuccessful) {
+          if (result == TransactionResult.TransactionSuccessful) {
             if (transactionOutcome != null) {
               String outcome = "Transaction ID :: " + transactionOutcome.getTransactionID() + "\n";
               outcome += "Approval code :: " + transactionOutcome.getApprovalCode() + "\n";
@@ -194,7 +209,7 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
               System.out.println(outcome);
             }
             //jsCallback.invoke("transactionOutcome.getTransactionID()");
-            sendEvent("transactionResult", result);
+            sendEvent(TRANSACTION_RESULT_EVENT_NAME, result);
           }
         }
 
@@ -202,14 +217,14 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
         public void onTransactionUIEvent(int event) {
           System.out.println("onTransactionUIEvent" + event);
           // jsCallback.invoke("onTransactionUIEvent" + event);
-          sendEvent("transactionUIEvent", event);
+          sendEvent(TRANSACTION_UI_EVENT_NAME, event);
         }
       });
     } catch (Exception e) {
       Logger logger = Logger.getAnonymousLogger();
       logger.log(Level.SEVERE, "Catch Error Transaction", e);
       //jsCallback.invoke("Error in transaction");
-      sendEvent("error", 000);
+      sendEvent(ERROR, 000);
     }
   }
 }
