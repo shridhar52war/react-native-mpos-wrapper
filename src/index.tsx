@@ -50,16 +50,12 @@ export function init(): Promise<void> {
   return MposWrapper.init(configObect);
 }
 
-export function refreshToken(
-  callback: (err?: Error, code?: number) => void //TODO: add config param to accept
-): Promise<void> {
-  return MposWrapper.refreshToken(callback);
+export function refreshToken(): void {
+  return MposWrapper.refreshToken();
 }
 
-export function initializeTransaction(
-  callback: (err?: Error, code?: number) => void //TODO: add config param to accept
-): Promise<void> {
-  return MposWrapper.initializeTransaction(callback);
+export function initializeTransaction(): void {
+  return MposWrapper.initializeTransaction();
 }
 
 export { MposWrapperEmitter };
