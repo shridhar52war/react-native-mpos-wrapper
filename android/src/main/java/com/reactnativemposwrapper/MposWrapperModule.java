@@ -17,8 +17,6 @@ import static my.com.softspace.ssmpossdk.transaction.MPOSTransaction.Transaction
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.os.Looper;
-import android.telecom.Call;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -27,10 +25,8 @@ import java.util.logging.Level;
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
@@ -56,11 +52,9 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
   public static final String ERROR = "Error";
   private Application application;
 
-  private FasstapSDKModule fasstapSDKModule;
   private ReactApplicationContext reactContext;
   private Context _context;
   private Activity _activity;
-  private Callback jsCallback;
   private DeviceEventManagerModule.RCTDeviceEventEmitter eventEmitter = null;
 
   public MposWrapperModule(ReactApplicationContext reactContext) {
@@ -153,9 +147,8 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void refreshToken(Callback callback) {
+  public void refreshToken() {
     Activity _currentActivity = getCurrentActivity();
-    jsCallback = callback;
     System.out.println("Inside refreshToken method......");
     //SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().uniqueID = "rzp01";
     //SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().developerID = "9nD9hrW8EMWB375";
@@ -185,10 +178,8 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
 
 
   @ReactMethod
-  public void initializeTransaction(Callback callback) {
+  public void initializeTransaction() {
     // Accept config as param to set amount and other transactional related data.
-    //fasstapSDKModule.initializeTransaction(this.reactContext, callback);
-    jsCallback = callback;
     Activity _activityContext = getCurrentActivity();
     try {
       MPOSTransactionParams transactionalParams = MPOSTransactionParams.Builder.create()
@@ -208,7 +199,6 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
               outcome += "Cardholder name :: " + transactionOutcome.getCardHolderName();
               System.out.println(outcome);
             }
-            //jsCallback.invoke("transactionOutcome.getTransactionID()");
             sendEvent(TRANSACTION_RESULT_EVENT_NAME, result);
           }
         }
@@ -216,15 +206,15 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
         @Override
         public void onTransactionUIEvent(int event) {
           System.out.println("onTransactionUIEvent" + event);
-          // jsCallback.invoke("onTransactionUIEvent" + event);
           sendEvent(TRANSACTION_UI_EVENT_NAME, event);
         }
       });
     } catch (Exception e) {
       Logger logger = Logger.getAnonymousLogger();
       logger.log(Level.SEVERE, "Catch Error Transaction", e);
-      //jsCallback.invoke("Error in transaction");
       sendEvent(ERROR, 000);
     }
   }
+
+  //TODO: Epose a void transaction method
 }
