@@ -16,8 +16,6 @@ import static my.com.softspace.ssmpossdk.transaction.MPOSTransaction.Transaction
 
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
-
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -46,14 +44,17 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 @ReactModule(name = MposWrapperModule.NAME)
 public class MposWrapperModule extends ReactContextBaseJavaModule {
   public static final String NAME = "MposWrapper";
-  public static final String TRANSACTION_UI_EVENT_NAME = "TransactionUIEvent";
-  public  static final String TRANSACTION_RESULT_EVENT_NAME = "TransactionResult";
-  public static final String REFRESH_TOKEN_EVENT_NAME = "RefreshToken";
-  public static final String ERROR = "Error";
-  private Application application;
+  public static final String ERROR = "ERROR";
+  private static final String REFRESH_TOKEN_ACTION = "REFRESH_TOKEN_ACTION";
+  private static final String INITIALIZE_TRANSACTION_ACTION = "INITIALIZE_TRANSACTION_ACTION";
+  private static final String VOID_TRANSACTION_ACTION = "VOID_TRANSACTION_ACTION";
+  private static final String REFUND_TRANSACTION_ACTION = "REFUND_TRANSACTION_ACTION";
+  private static final String TRANSACTION_UI_EVENT = "TRANSACTION_UI_EVENT";
+  private static final String TRANSACTION_RESULT_EVENT = "TRANSACTION_RESULT_EVENT";
 
+
+  private Application application;
   private ReactApplicationContext reactContext;
-  private Context _context;
   private Activity _activity;
   private DeviceEventManagerModule.RCTDeviceEventEmitter eventEmitter = null;
 
@@ -116,16 +117,38 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
     }
   }
 
-  public void sendEvent(String eventName, Integer eventCode) {
-    WritableMap params = Arguments.createMap();
-    params.putInt("eventCode", eventCode);
+  public void sendEvent(String eventName, ReadableMap params) {
     if (eventEmitter == null) {
       eventEmitter = getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
     }
     if (eventEmitter != null) {
-      System.out.println("Emitting event" + "Event Code :" + eventName + "Event Code :" + eventCode);
       eventEmitter.emit(eventName, params);
     }
+  }
+
+  private void sendTransactionResultEvent(String action, Integer result, MPOSTransactionOutcome transactionOutcome) {
+    WritableMap params = Arguments.createMap();
+    params.putString("action", action);
+    params.putString("eventName", TRANSACTION_RESULT_EVENT);
+    params.putInt("transactionResult", result);
+    params.putMap("transactionOutcome", (ReadableMap) transactionOutcome);
+    sendEvent(action, params);
+  }
+
+  private void sendTransactionUiEvent(String action, Integer eventValue) {
+    WritableMap params = Arguments.createMap();
+    params.putString("action", action);
+    params.putString("eventName", TRANSACTION_UI_EVENT);
+    params.putInt("transactionResult", eventValue);
+    sendEvent(action, params);
+  }
+
+  private void sendErrorEvent(String action, Exception exception){
+    WritableMap params = Arguments.createMap();
+    params.putString("action", action);
+    params.putString("eventName", ERROR);
+    params.putMap("execption", (ReadableMap) exception);
+    sendEvent(action, params);
   }
 
   private void uploadSignature() {
@@ -157,64 +180,99 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
       @Override
       public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
         System.out.println("onTransactionResult in refreshToken:: " + result);
-
-        if (result == TransactionResult.TransactionSuccessful) {
-          System.out.println("refreshToken TransactionSuccessful" + result);
-          sendEvent(REFRESH_TOKEN_EVENT_NAME, result);
-        } else {
-          if (transactionOutcome != null) {
-            System.out.println("refreshToken :" + transactionOutcome.getStatusCode() + " - " + transactionOutcome.getStatusMessage());
-          }
-        }
+        sendTransactionResultEvent(REFRESH_TOKEN_ACTION, result, transactionOutcome);
       }
 
       @Override
       public void onTransactionUIEvent(int event) {
         System.out.println("onTransactionUIEvent refreshToken :: " + event);
-        sendEvent(REFRESH_TOKEN_EVENT_NAME, event);
+        sendTransactionUiEvent(REFRESH_TOKEN_ACTION, event);
       }
     });
   }
 
 
   @ReactMethod
-  public void initializeTransaction() {
+  public void initializeTransaction(String amount) {
     // Accept config as param to set amount and other transactional related data.
     Activity _activityContext = getCurrentActivity();
     try {
       MPOSTransactionParams transactionalParams = MPOSTransactionParams.Builder.create()
-        .setAmount("100")
+        .setAmount(amount)
         .build();
       System.out.println("Initialising transaction........");
-      // uploadSignature();
       SSMPOSSDK.getInstance().getTransaction().startTransaction(_activityContext, transactionalParams, new MPOSTransaction.TransactionEvents() {
         @Override
         public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
           System.out.println(" onTransactionResult result : " + result);
-          if (result == TransactionResult.TransactionSuccessful) {
-            if (transactionOutcome != null) {
-              String outcome = "Transaction ID :: " + transactionOutcome.getTransactionID() + "\n";
-              outcome += "Approval code :: " + transactionOutcome.getApprovalCode() + "\n";
-              outcome += "Card number :: " + transactionOutcome.getCardNo() + "\n";
-              outcome += "Cardholder name :: " + transactionOutcome.getCardHolderName();
-              System.out.println(outcome);
-            }
-            sendEvent(TRANSACTION_RESULT_EVENT_NAME, result);
-          }
+          sendTransactionResultEvent(INITIALIZE_TRANSACTION_ACTION, result, transactionOutcome);
         }
 
         @Override
         public void onTransactionUIEvent(int event) {
           System.out.println("onTransactionUIEvent" + event);
-          sendEvent(TRANSACTION_UI_EVENT_NAME, event);
+          sendTransactionUiEvent(INITIALIZE_TRANSACTION_ACTION, event);
         }
       });
     } catch (Exception e) {
       Logger logger = Logger.getAnonymousLogger();
       logger.log(Level.SEVERE, "Catch Error Transaction", e);
-      sendEvent(ERROR, 000);
+      sendErrorEvent(INITIALIZE_TRANSACTION_ACTION, e);
     }
   }
 
-  //TODO: Epose a void transaction method
+  @ReactMethod
+  public void voidTransaction(String transactionId) {
+    MPOSTransactionParams transactionalParams = MPOSTransactionParams.Builder.create()
+      .setMPOSTransactionID(transactionId)
+      .build();
+    Activity _activityContext = getCurrentActivity();
+    try {
+
+      SSMPOSSDK.getInstance().getTransaction().voidTransaction(_activityContext, transactionalParams, new MPOSTransaction.TransactionEvents() {
+        @Override
+        public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
+          System.out.println("voidTransaction -> onTransactionResult result : " + result);
+          sendTransactionResultEvent(VOID_TRANSACTION_ACTION,result, transactionOutcome );
+        }
+
+        @Override
+        public void onTransactionUIEvent(int event) {
+          System.out.println("voidTransaction -> onTransactionUIEvent result : " + event);
+          sendTransactionUiEvent(VOID_TRANSACTION_ACTION, event);
+        }
+      });
+    } catch (Exception e) {
+      Logger logger = Logger.getAnonymousLogger();
+      logger.log(Level.SEVERE, "voidTransaction -> Catch Error Transaction", e);
+      sendErrorEvent(VOID_TRANSACTION_ACTION, e);
+    }
+  }
+
+  @ReactMethod
+  public void refundTransaction(String transactionId) {
+    MPOSTransactionParams transactionalParams = MPOSTransactionParams.Builder.create()
+      .setMPOSTransactionID(transactionId)
+      .build();
+    Activity _activityContext = getCurrentActivity();
+    try {
+      SSMPOSSDK.getInstance().getTransaction().refundTransaction(_activityContext, transactionalParams, new MPOSTransaction.TransactionEvents() {
+        @Override
+        public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
+          System.out.println("refundTransaction -> onTransactionResult result : " + result);
+          sendTransactionResultEvent(REFUND_TRANSACTION_ACTION, result,transactionOutcome );
+        }
+
+        @Override
+        public void onTransactionUIEvent(int event) {
+          System.out.println("refundTransaction -> onTransactionUIEvent result : " + event);
+          sendTransactionUiEvent(REFUND_TRANSACTION_ACTION, event);
+        }
+      });
+    } catch (Exception e) {
+      Logger logger = Logger.getAnonymousLogger();
+      logger.log(Level.SEVERE, "refundTransaction -> Catch Error Transaction", e);
+      sendErrorEvent(REFUND_TRANSACTION_ACTION, e);
+    }
+  }
 }

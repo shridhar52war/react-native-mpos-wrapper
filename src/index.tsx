@@ -32,7 +32,6 @@ interface ConfigObect {
   attestationRefreshInterval?: number;
   attestationConnectionTimeout?: number;
   googleApiKey: string;
-
   accessKey: string;
   secretKey: string;
   uniqueId: string;
@@ -47,8 +46,16 @@ export function refreshToken(): void {
   return MposWrapper.refreshToken();
 }
 
-export function initializeTransaction(): void {
-  return MposWrapper.initializeTransaction();
+export function initializeTransaction(amount: string): void {
+  return MposWrapper.initializeTransaction(amount);
+}
+
+export function voidTransaction(transactionId: string): void {
+  return MposWrapper.voidTransaction(transactionId);
+}
+
+export function refundTransaction(transactionId: string): void {
+  return MposWrapper.refundTransaction(transactionId);
 }
 
 export { MposWrapperEmitter };
