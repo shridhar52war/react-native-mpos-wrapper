@@ -16,6 +16,7 @@ import static my.com.softspace.ssmpossdk.transaction.MPOSTransaction.Transaction
 
 import android.app.Activity;
 import android.app.Application;
+
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -28,6 +29,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableNativeMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.bridge.UiThreadUtil;
@@ -126,12 +128,12 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
     }
   }
 
-  private void sendTransactionResultEvent(String action, Integer result, MPOSTransactionOutcome transactionOutcome) {
+  private void sendTransactionResultEvent(String action, Integer result, ReadableMap transactionOutcome) {
     WritableMap params = Arguments.createMap();
     params.putString("action", action);
     params.putString("eventName", TRANSACTION_RESULT_EVENT);
     params.putInt("transactionResult", result);
-    params.putMap("transactionOutcome", (ReadableMap) transactionOutcome);
+    params.putMap("transactionOutcome", transactionOutcome);
     sendEvent(action, params);
   }
 
@@ -143,11 +145,11 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
     sendEvent(action, params);
   }
 
-  private void sendErrorEvent(String action, Exception exception){
+  private void sendErrorEvent(String action, Exception exception) {
     WritableMap params = Arguments.createMap();
     params.putString("action", action);
     params.putString("eventName", ERROR);
-    params.putMap("execption", (ReadableMap) exception);
+    params.putMap("exception", (ReadableMap) exception);
     sendEvent(action, params);
   }
 
@@ -180,7 +182,12 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
       @Override
       public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
         System.out.println("onTransactionResult in refreshToken:: " + result);
-        sendTransactionResultEvent(REFRESH_TOKEN_ACTION, result, transactionOutcome);
+        WritableMap writableMap = Arguments.createMap();
+        if (transactionOutcome != null) {
+          writableMap.putString("statusCode", transactionOutcome.getStatusCode());
+          writableMap.putString("statusMessage", transactionOutcome.getStatusMessage());
+        }
+        sendTransactionResultEvent(REFRESH_TOKEN_ACTION, result, writableMap);
       }
 
       @Override
@@ -204,8 +211,19 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
       SSMPOSSDK.getInstance().getTransaction().startTransaction(_activityContext, transactionalParams, new MPOSTransaction.TransactionEvents() {
         @Override
         public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
-          System.out.println(" onTransactionResult result : " + result);
-          sendTransactionResultEvent(INITIALIZE_TRANSACTION_ACTION, result, transactionOutcome);
+          System.out.println(" onTransactionResult -----result : " + result);
+          WritableMap writableMap = Arguments.createMap();
+          if (result == 0) {
+            if (transactionOutcome != null) {
+              writableMap.putString("transactionID", transactionOutcome.getTransactionID());
+              writableMap.putString("approvalCode", transactionOutcome.getApprovalCode());
+              writableMap.putString("cardNo", transactionOutcome.getCardNo());
+              writableMap.putString("cardHolderName", transactionOutcome.getCardHolderName());
+              writableMap.putString("transactionId", transactionOutcome.getTransactionID());
+              writableMap.putString("approvalCode", transactionOutcome.getApprovalCode());
+            }
+          }
+          sendTransactionResultEvent(INITIALIZE_TRANSACTION_ACTION, result, writableMap);
         }
 
         @Override
@@ -233,7 +251,12 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
         @Override
         public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
           System.out.println("voidTransaction -> onTransactionResult result : " + result);
-          sendTransactionResultEvent(VOID_TRANSACTION_ACTION,result, transactionOutcome );
+          WritableMap writableMap = Arguments.createMap();
+          if (transactionOutcome != null) {
+            writableMap.putString("statusCode", transactionOutcome.getStatusCode());
+            writableMap.putString("statusMessage", transactionOutcome.getStatusMessage());
+          }
+          sendTransactionResultEvent(VOID_TRANSACTION_ACTION, result, writableMap);
         }
 
         @Override
@@ -260,7 +283,12 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
         @Override
         public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
           System.out.println("refundTransaction -> onTransactionResult result : " + result);
-          sendTransactionResultEvent(REFUND_TRANSACTION_ACTION, result,transactionOutcome );
+          WritableMap writableMap = Arguments.createMap();
+          if (transactionOutcome != null) {
+            writableMap.putString("statusCode", transactionOutcome.getStatusCode());
+            writableMap.putString("statusMessage", transactionOutcome.getStatusMessage());
+          }
+          sendTransactionResultEvent(REFUND_TRANSACTION_ACTION, result, writableMap);
         }
 
         @Override
