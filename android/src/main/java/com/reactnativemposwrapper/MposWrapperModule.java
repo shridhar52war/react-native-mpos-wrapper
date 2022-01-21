@@ -77,8 +77,10 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void init(ReadableMap initConfig, Promise promise) {
-    this._activity = getCurrentActivity();
+    ReactApplicationContext currentReactContext = this.reactContext;
+    Activity currentActivity = getCurrentActivity();
     System.out.println("Inside initFasstapSDK--------");
+    System.out.println("isRunningOnRemoteProcess...." + SSMPOSSDK.isRunningOnRemoteProcess(currentReactContext));
     try {
       SSMPOSSDKConfiguration config = SSMPOSSDKConfiguration.Builder.create()
         .setAttestationHost(initConfig.getString("attestationHost"))
@@ -95,8 +97,6 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
         .setEnvironment(Environment.UAT)
         .build();
 
-      ReactApplicationContext currentReactContext = this.reactContext;
-      Activity currentActivity = this._activity;
 
       UiThreadUtil.runOnUiThread(new Runnable() {
         @Override
@@ -174,10 +174,9 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void refreshToken() {
     Activity _currentActivity = getCurrentActivity();
+    ReactApplicationContext currentReactContext = this.reactContext;
+    System.out.println("isRunningOnRemoteProcess...." + SSMPOSSDK.isRunningOnRemoteProcess(currentReactContext));
     System.out.println("Inside refreshToken method......");
-    //SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().uniqueID = "rzp01";
-    //SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().developerID = "9nD9hrW8EMWB375";
-    // System.out.println("XXXXXXXXXXXXXXX" + SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().uniqueID + SSMPOSSDK.getInstance().getSSMPOSSDKConfiguration().developerID);
     SSMPOSSDK.getInstance().getTransaction().refreshToken(_currentActivity, new MPOSTransaction.TransactionEvents() {
       @Override
       public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
@@ -213,15 +212,24 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
         public void onTransactionResult(int result, MPOSTransactionOutcome transactionOutcome) {
           System.out.println(" onTransactionResult -----result : " + result);
           WritableMap writableMap = Arguments.createMap();
+
           if (result == 0) {
-            if (transactionOutcome != null) {
-              writableMap.putString("transactionID", transactionOutcome.getTransactionID());
-              writableMap.putString("approvalCode", transactionOutcome.getApprovalCode());
-              writableMap.putString("cardNo", transactionOutcome.getCardNo());
-              writableMap.putString("cardHolderName", transactionOutcome.getCardHolderName());
-              writableMap.putString("transactionId", transactionOutcome.getTransactionID());
-              writableMap.putString("approvalCode", transactionOutcome.getApprovalCode());
-            }
+            writableMap.putString("statusCode", transactionOutcome.getStatusCode());
+            writableMap.putString("statusMessage", transactionOutcome.getStatusMessage());
+            writableMap.putString("transactionID", transactionOutcome.getTransactionID());
+            writableMap.putString("approvalCode", transactionOutcome.getApprovalCode());
+            writableMap.putString("cardNo", transactionOutcome.getCardNo());
+            writableMap.putString("cardHolderName", transactionOutcome.getCardHolderName());
+            writableMap.putString("transactionId", transactionOutcome.getTransactionID());
+            writableMap.putString("approvalCode", transactionOutcome.getApprovalCode());
+            writableMap.putString("acquirerID", transactionOutcome.getAcquirerID());
+            writableMap.putString("merchantIdentifier", transactionOutcome.getMerchantIdentifier());
+            writableMap.putString("terminalIdentifier", transactionOutcome.getTerminalIdentifier());
+            writableMap.putString("transactionStatusInfo", transactionOutcome.getTransactionStatusInfo());
+            writableMap.putString("invoiceNo", transactionOutcome.getInvoiceNo());
+          } else if (transactionOutcome != null) {
+            writableMap.putString("statusCode", transactionOutcome.getStatusCode());
+            writableMap.putString("statusMessage", transactionOutcome.getStatusMessage());
           }
           sendTransactionResultEvent(INITIALIZE_TRANSACTION_ACTION, result, writableMap);
         }
@@ -274,6 +282,7 @@ public class MposWrapperModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void refundTransaction(String transactionId) {
+    System.out.println("Inside refundTransaction -----> " + transactionId);
     MPOSTransactionParams transactionalParams = MPOSTransactionParams.Builder.create()
       .setMPOSTransactionID(transactionId)
       .build();
