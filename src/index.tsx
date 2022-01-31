@@ -1,9 +1,5 @@
 import { NativeModules, Platform, NativeEventEmitter } from 'react-native';
-import type {
-  ConfigObect,
-  TransactionResult,
-  TransactionOutcome,
-} from './types';
+import { ConfigObect, TransactionResult, TransactionOutcome } from './types';
 
 const LINKING_ERROR =
   `The package 'react-native-mpos-wrapper' doesn't seem to be linked. Make sure: \n\n` +
