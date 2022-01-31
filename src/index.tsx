@@ -1,4 +1,9 @@
 import { NativeModules, Platform, NativeEventEmitter } from 'react-native';
+import type {
+  ConfigObect,
+  TransactionResult,
+  TransactionOutcome,
+} from './types';
 
 const LINKING_ERROR =
   `The package 'react-native-mpos-wrapper' doesn't seem to be linked. Make sure: \n\n` +
@@ -9,34 +14,17 @@ const LINKING_ERROR =
 const MposWrapper = NativeModules.MposWrapper
   ? NativeModules.MposWrapper
   : new Proxy(
-    {},
-    {
-      get() {
-        throw new Error(LINKING_ERROR);
-      },
-    }
-  );
+      {},
+      {
+        get() {
+          throw new Error(LINKING_ERROR);
+        },
+      }
+    );
 
 const MposWrapperEmitter = NativeModules.MposWrapper
   ? new NativeEventEmitter(NativeModules.MposWrapper)
   : null;
-
-export function multiply(a: number, b: number): Promise<number> {
-  return MposWrapper.multiply(a, b);
-}
-
-interface ConfigObect {
-  attestationHost: string;
-  attestationHostCertPinning: string;
-  attestationHostReadTimeout?: number;
-  attestationRefreshInterval?: number;
-  attestationConnectionTimeout?: number;
-  googleApiKey: string;
-  accessKey: string;
-  secretKey: string;
-  uniqueId: string;
-  developerId: string;
-}
 
 export function init(configObect: ConfigObect): Promise<void> {
   return MposWrapper.init(configObect);
@@ -58,4 +46,9 @@ export function refundTransaction(transactionId: string): void {
   return MposWrapper.refundTransaction(transactionId);
 }
 
-export { MposWrapperEmitter };
+export {
+  MposWrapperEmitter,
+  TransactionResult,
+  ConfigObect,
+  TransactionOutcome,
+};
